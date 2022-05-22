@@ -9,5 +9,5 @@ def pizza_contract():
     with open("./abi/LazlosPizza.json") as f:
         info_json = json.load(f)
         abi = info_json['abi']
-        adress = Web3.toChecksumAddress(PIZZA_CONTRACT_ADDRESS)
-        return w3.eth.contract(address=adress, abi=abi)
+        address = Web3.toChecksumAddress(PIZZA_CONTRACT_ADDRESS)
+        return w3.eth.contract(address=address, abi=abi)

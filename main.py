@@ -1,5 +1,6 @@
 from config.config import BLOCK
 from payouts.calculate import calculate_payouts
+from s3.s3 import upload_to_s3
 
 if __name__ == '__main__':
     print('\n--------------- Calculating Payouts ----------------')
@@ -12,3 +13,5 @@ if __name__ == '__main__':
         print(f'Amount: {payout["payout_amount"]}\n')
 
     print('----------------------------------------------------\n')
+
+    upload_to_s3(int(BLOCK), payouts)

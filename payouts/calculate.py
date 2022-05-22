@@ -1,9 +1,11 @@
-from config.config import PAYOUT_DB, CREATOR_WALLET, DEVELOPER_WALLET
+from config.config import PAYOUT_DB, CREATOR_WALLET, DEVELOPER_WALLET, WEB3_PROVIDER_URI
 from contracts.ingredients import ingredients_contract
 from contracts.pizza import pizza_contract
 from contracts.shop import shop_contract, get_balance_in_shop_contract
 
 import requests
+import time
+from web3 import Web3
 
 def get_all_pizzas(block):
     pizzas_contract = pizza_contract()
@@ -181,26 +183,41 @@ def calculate_payouts(block):
     # determine which address's are getting rewarded from the rarity rewards
     rarity_rewarded_owners = []
     for pizza in rarest_pizzas:
-        rarity_rewarded_owners.append(get_owner_of_pizza_token_id(block, pizza['token_id']))
+        address = get_owner_of_pizza_token_id(block, pizza['token_id'])
+        token_id = pizza['token_id']
+        rarity_rewarded_owners.append((address, token_id))
+
+    # get the timestamp for this block
+    timestamp = None
+    try:
+        w3 = Web3(Web3.HTTPProvider(WEB3_PROVIDER_URI))
+        block_obj = w3.eth.get_block(block_identifier=block)
+        timestamp = block_obj['timestamp']
+    except:
+        timestamp = int(time.time()) 
 
     payouts = [
         {
             'address': CREATOR_WALLET,
             'payout_amount': int(creator_rewards),
-            'reason': 'Creator'
+            'reason': 'Creator',
+            'timestamp': timestamp
         },
         {
             'address': DEVELOPER_WALLET,
             'payout_amount': int(developer_rewards),
-            'reason': 'Developer'
+            'reason': 'Developer',
+            'timestamp': timestamp
         }
     ]
 
-    for address in rarity_rewarded_owners:
+    for (address, token_id) in rarity_rewarded_owners:
         payouts.append({
             'address': address,
             'payout_amount': int(rarity_rewards / float(len(rarity_rewarded_owners))),
-            'reason': 'Rarity reward'
+            'reason': 'Rarity reward',
+            'timestamp': timestamp,
+            'token_id': token_id
         })
 
     return payouts
