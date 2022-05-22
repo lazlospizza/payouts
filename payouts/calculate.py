@@ -148,20 +148,20 @@ def calculate_payouts(block):
 
     # get the rarest pizzas
     rarest_pizzas = [] 
-    highest_rarity = None
+    lowest_rarity = None
     for pizza_rarity in pizza_rarities:
-        if highest_rarity == None:
+        if lowest_rarity == None:
             rarest_pizzas.append(pizza_rarity['pizza'])
-            highest_rarity = pizza_rarity['rarity']
+            lowest_rarity = pizza_rarity['rarity']
             continue
         
-        if pizza_rarity['rarity'] == highest_rarity:
+        if pizza_rarity['rarity'] == lowest_rarity:
             rarest_pizzas.append(pizza_rarity['pizza'])
             continue 
 
-        if pizza_rarity['rarity'] > highest_rarity:
+        if pizza_rarity['rarity'] < lowest_rarity:
             rarest_pizzas = [pizza_rarity['pizza']]
-            highest_rarity = pizza_rarity['rarity']
+            lowest_rarity = pizza_rarity['rarity']
 
     # calculate the prize pool
     total_balance = get_balance_in_shop_contract(block)
