@@ -29,5 +29,7 @@ def upload_to_s3(block, payouts):
 
     except Exception as e:
         print(f'Failed to upload to S3: {e}')
+        return
 
-    return None
+    print('Successfully updated payout db in S3.')
+    return

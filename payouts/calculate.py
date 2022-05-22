@@ -13,12 +13,17 @@ def get_all_pizzas(block):
 
     all_pizzas = []
     for pizza_token_id in range(1, num_pizzas+1):
+        owner = pizzas_contract.functions.ownerOf(pizza_token_id).call(block_identifier=block)
+        if owner == '0x0000000000000000000000000000000000000000':
+            continue
+
         pizza = pizzas_contract.functions.pizza(pizza_token_id).call(block_identifier=block)
+        
         all_pizzas.append({
             'token_id': pizza_token_id,
             'data': pizza
         })
-    
+
     return all_pizzas
 
 def get_all_ingredients(block):
@@ -62,7 +67,7 @@ def calculate_ingredient_rarities(all_pizzas, all_ingredients):
         
         rarities.append({
             'ingredient': ingredient,
-            'rarity': float(pizzas_with_ingredient) / float(len(all_pizzas))
+            'rarity': 100.0 * float(pizzas_with_ingredient) / float(len(all_pizzas))
         })
     
     return rarities
@@ -86,11 +91,11 @@ def calculate_pizza_rarities(ingredient_rarities, all_pizzas):
                 if pizza_contains_ingredient(pizza['data'], ingredient_rarity['ingredient']['token_id']):
                     pizzas_ingredient_rarities.append(ingredient_rarity['rarity'])
                 else:
-                    pizzas_ingredient_rarities.append(1.0 - ingredient_rarity['rarity'])
+                    pizzas_ingredient_rarities.append(100.0 - ingredient_rarity['rarity'])
 
         rarities.append({
             'pizza': pizza,
-            'rarity': sum(pizzas_ingredient_rarities) / len(pizzas_ingredient_rarities)
+            'rarity': round(sum(pizzas_ingredient_rarities) / len(pizzas_ingredient_rarities), 3)
         })
     
     return rarities
@@ -217,7 +222,8 @@ def calculate_payouts(block):
             'payout_amount': int(rarity_rewards / float(len(rarity_rewarded_owners))),
             'reason': 'Rarity reward',
             'timestamp': timestamp,
-            'token_id': token_id
+            'token_id': token_id,
+            'rarity': lowest_rarity
         })
 
     return payouts
