@@ -24,7 +24,7 @@ def upload_to_s3(block, payouts):
 
     try:
         s3 = boto3.resource('s3')
-        object = s3.Object('lazlos-pizza', 'payouts/rinkeby.json')
+        object = s3.Object('lazlos-pizza', 'payouts/mainnet.json')
         object.put(Body=bytes(json.dumps(payouts_db).encode('UTF-8')), ContentType='application/json')
 
     except Exception as e:
